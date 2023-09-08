@@ -1,6 +1,5 @@
 package com.example.movies.di
 
-import android.app.Application
 import com.example.movies.api.MoviesApi
 import dagger.Module
 import dagger.Provides
@@ -17,7 +16,7 @@ import javax.inject.Singleton
 object NetworkModule {
     @Singleton
     @Provides
-    fun provideRetrofit(app: Application): Retrofit {
+    fun provideRetrofit(): Retrofit {
         val logging = HttpLoggingInterceptor()
         logging.level = HttpLoggingInterceptor.Level.BODY
 

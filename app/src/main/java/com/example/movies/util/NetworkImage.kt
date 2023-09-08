@@ -13,7 +13,6 @@ import com.example.movies.theme.compositedOnSurface
  * A wrapper around [AsyncImage], setting a default [contentScale] and showing
  * content while loading.
  */
-@Suppress("unused")
 @Composable
 fun NetworkImage(
     url: String,
