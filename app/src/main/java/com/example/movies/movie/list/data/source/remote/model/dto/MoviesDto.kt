@@ -13,10 +13,10 @@ data class MoviesDto(
     val totalResults: Long? = null,
 
     @SerializedName("results")
-    val results: List<Movie> = emptyList(),
+    val results: List<MovieDto> = emptyList(),
 )
 
-data class Movie(
+data class MovieDto(
     @SerializedName("id")
     val id: Long,
 

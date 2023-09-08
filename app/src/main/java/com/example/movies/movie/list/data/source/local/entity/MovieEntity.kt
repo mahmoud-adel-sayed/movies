@@ -8,14 +8,14 @@ import androidx.room.PrimaryKey
 data class MovieEntity(
     @PrimaryKey
     @ColumnInfo(name = "id")
-    var id: Int,
+    val id: Long,
 
     @ColumnInfo(name = "title")
-    var title: String,
+    val title: String,
 
     @ColumnInfo(name = "release_date")
-    var releaseDate: String,
+    val releaseDate: String,
 
     @ColumnInfo(name = "poster_url")
-    var posterUrl: String
+    val posterUrl: String
 )
