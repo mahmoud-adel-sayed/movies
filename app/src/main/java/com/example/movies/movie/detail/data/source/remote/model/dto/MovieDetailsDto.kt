@@ -22,13 +22,13 @@ data class MovieDetailsDto(
     val rating: Double,
 
     @SerializedName("genres")
-    val genres: List<Genre>,
+    val genres: List<GenreDto>
 )
 
-data class Genre(
+data class GenreDto(
     @SerializedName("id")
     val id: Int,
 
     @SerializedName("name")
-    val name: String,
+    val name: String
 )
