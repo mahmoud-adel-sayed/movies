@@ -17,7 +17,7 @@ data class MovieEntity(
     val title: String,
 
     @ColumnInfo(name = "release_date")
-    val releaseDate: String,
+    val releaseDate: String?,
 
     @ColumnInfo(name = "poster_url")
     val posterUrl: String

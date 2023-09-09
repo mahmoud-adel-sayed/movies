@@ -153,12 +153,14 @@ private fun MovieCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = movie.releaseDate,
-                    style = AppTheme.typography.body1,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                movie.releaseDate?.let {
+                    Text(
+                        text = it,
+                        style = AppTheme.typography.body1,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
