@@ -5,7 +5,7 @@ import com.example.movies.movie.list.data.source.remote.model.dto.MovieDto
 import com.example.movies.movie.list.domain.model.Movie
 
 fun MovieEntity.toMovie(): Movie = Movie(
-    id = this.id,
+    id = this.serverId,
     title = this.title,
     releaseDate = this.releaseDate,
     posterUrl = this.posterUrl
@@ -14,7 +14,7 @@ fun MovieEntity.toMovie(): Movie = Movie(
 fun List<MovieDto>.toMovieEntities(): List<MovieEntity> = map { it.toMovieEntity() }
 
 fun MovieDto.toMovieEntity(): MovieEntity = MovieEntity(
-    id = this.id,
+    serverId = this.id,
     title = this.title,
     releaseDate = this.releaseDate,
     posterUrl = this.posterUrl

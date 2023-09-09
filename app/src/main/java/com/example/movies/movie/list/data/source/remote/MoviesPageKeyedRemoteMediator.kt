@@ -55,7 +55,7 @@ class MoviesPageKeyedRemoteMediator(
                         val nextKey = if (endOfPaginationReached) null else page + 1
                         val keys = movies.map {
                             RemoteKeyEntity(
-                                id = it.id,
+                                id = it.serverId,
                                 prevKey = prevKey,
                                 nextKey = nextKey
                             )
@@ -79,7 +79,7 @@ class MoviesPageKeyedRemoteMediator(
     ): RemoteKeyEntity? {
         return state.lastItemOrNull()?.let { movie ->
             db.withTransaction {
-                db.remoteKeyDao().remoteKeyById(movie.id)
+                db.remoteKeyDao().remoteKeyById(movie.serverId)
             }
         }
     }
@@ -88,7 +88,7 @@ class MoviesPageKeyedRemoteMediator(
         state: PagingState<Int, MovieEntity>
     ): RemoteKeyEntity? {
         return state.anchorPosition?.let { position ->
-            state.closestItemToPosition(position)?.id?.let { id ->
+            state.closestItemToPosition(position)?.serverId?.let { id ->
                 db.withTransaction {
                     db.remoteKeyDao().remoteKeyById(id)
                 }
