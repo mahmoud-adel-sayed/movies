@@ -3,16 +3,16 @@ package com.example.movies.movie.list.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridScope
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
@@ -30,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemsIndexed
 import com.example.movies.R
 import com.example.movies.common.ui.TopAppBar
 import com.example.movies.movie.list.domain.model.Movie
@@ -65,12 +66,9 @@ private fun MoviesContent(
     movies: LazyPagingItems<Movie>,
     onMovieClick: (movieId: Long) -> Unit,
 ) {
-    LazyVerticalGrid(
-        modifier = modifier.padding(16.dp),
-        columns = GridCells.Fixed(2)
-    ) {
+    LazyColumn(modifier = modifier.padding(horizontal = 16.dp)) {
         itemsIndexed(
-            items = movies.itemSnapshotList
+            items = movies
         ) { index: Int, movie: Movie? ->
             movie?.let {
                 MovieCard(
@@ -93,7 +91,7 @@ private fun MoviesContent(
     }
 }
 
-private fun LazyGridScope.error(
+private fun LazyListScope.error(
     message: String
 ) {
     item {
@@ -105,7 +103,7 @@ private fun LazyGridScope.error(
     }
 }
 
-private fun LazyGridScope.loading(
+private fun LazyListScope.loading(
     modifier: Modifier = Modifier
 ) {
     item {
@@ -128,39 +126,40 @@ private fun MovieCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 270.dp)
-            .padding(
-                end = if (index % 2 == 0) 16.dp else 0.dp,
-                bottom = 16.dp
-            )
+            .defaultMinSize(minHeight = 150.dp)
+            .padding(top = 16.dp)
             .clickable(onClick = {
                 onMovieClick(movie.id)
             })
             .testTag("${MOVIE_ITEM_ID}_${index}_card"),
         contentColor = AppTheme.colors.onSurface
     ) {
-        Column {
+        Row {
             NetworkImage(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .width(150.dp)
+                    .height(150.dp),
                 url = IMAGE_BASE_URL + movie.posterUrl,
                 contentScale = ContentScale.FillBounds,
                 contentDescription = null
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = movie.title,
-                style = AppTheme.typography.body1.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.padding(horizontal = 16.dp),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = movie.releaseDate,
-                style = AppTheme.typography.body1,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            Column {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = movie.title,
+                    style = AppTheme.typography.body1.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = movie.releaseDate,
+                    style = AppTheme.typography.body1,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }

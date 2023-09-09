@@ -15,6 +15,7 @@ import com.example.movies.util.safeApiCall
 import retrofit2.HttpException
 import java.io.IOException
 import java.io.InvalidObjectException
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPagingApi::class)
 class MoviesPageKeyedRemoteMediator(
@@ -22,6 +23,16 @@ class MoviesPageKeyedRemoteMediator(
     private val db: AppDatabase,
     private val moviesApi: MoviesApi
 ) : RemoteMediator<Int, MovieEntity>() {
+
+    override suspend fun initialize(): InitializeAction {
+        val cacheTimeout = TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)
+        return if (System.currentTimeMillis() - (db.remoteKeyDao().getCreationTime() ?: 0) < cacheTimeout) {
+            InitializeAction.SKIP_INITIAL_REFRESH
+        } else {
+            InitializeAction.LAUNCH_INITIAL_REFRESH
+        }
+    }
+
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, MovieEntity>
@@ -79,7 +90,7 @@ class MoviesPageKeyedRemoteMediator(
     ): RemoteKeyEntity? {
         return state.lastItemOrNull()?.let { movie ->
             db.withTransaction {
-                db.remoteKeyDao().remoteKeyById(movie.serverId)
+                db.remoteKeyDao().getRemoteKeyById(movie.serverId)
             }
         }
     }
@@ -90,7 +101,7 @@ class MoviesPageKeyedRemoteMediator(
         return state.anchorPosition?.let { position ->
             state.closestItemToPosition(position)?.serverId?.let { id ->
                 db.withTransaction {
-                    db.remoteKeyDao().remoteKeyById(id)
+                    db.remoteKeyDao().getRemoteKeyById(id)
                 }
             }
         }

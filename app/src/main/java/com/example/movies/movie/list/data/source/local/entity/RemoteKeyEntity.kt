@@ -14,5 +14,8 @@ data class RemoteKeyEntity(
     val prevKey: Int?,
 
     @ColumnInfo(name = "next_key")
-    val nextKey: Int?
+    val nextKey: Int?,
+
+    @ColumnInfo(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis()
 )

@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.movies.AppDatabase
 import com.example.movies.movie.list.data.source.local.dao.MoviesDao
-import com.example.movies.movie.list.data.source.local.dao.RemoteKeyDao
+import com.example.movies.movie.list.data.source.local.dao.RemoteKeysDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,7 +29,7 @@ object DbModule {
 
     @Provides
     @Singleton
-    fun provideRemoteKeyDao(db: AppDatabase): RemoteKeyDao = db.remoteKeyDao()
+    fun provideRemoteKeyDao(db: AppDatabase): RemoteKeysDao = db.remoteKeyDao()
 }
 
 private const val DB_NAME = "TMDB.db"
