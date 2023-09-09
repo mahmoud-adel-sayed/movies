@@ -1,5 +1,6 @@
 package com.example.movies.movie.list.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,12 +20,16 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -37,6 +42,7 @@ import com.example.movies.movie.list.domain.model.Movie
 import com.example.movies.theme.AppTheme
 import com.example.movies.util.NetworkImage
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MoviesScreen(
     modifier: Modifier = Modifier,
@@ -53,7 +59,9 @@ fun MoviesScreen(
         }
     ) { innerPaddingModifier ->
         MoviesContent(
-            modifier = modifier.padding(innerPaddingModifier),
+            modifier = modifier
+                .padding(innerPaddingModifier)
+                .semantics { testTagsAsResourceId = true },
             movies = moviesViewModel.getPopularMovies().collectAsLazyPagingItems(),
             onMovieClick = onMovieClick
         )
@@ -163,6 +171,24 @@ private fun MovieCard(
                 }
             }
         }
+    }
+}
+
+@Preview(name = "MovieCardPreview")
+@Preview(name = "MovieCardPreview - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MovieCardPreview() {
+    AppTheme {
+        MovieCard(
+            index = 0,
+            movie = Movie(
+                id = 1,
+                title = "movie title",
+                releaseDate = "2023-01-01",
+                posterUrl = "image.jpg"
+            ),
+            onMovieClick = { }
+        )
     }
 }
 

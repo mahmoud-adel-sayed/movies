@@ -1,5 +1,6 @@
 package com.example.movies.movie.detail.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,10 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -28,11 +33,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.movies.R
 import com.example.movies.common.model.UiState
 import com.example.movies.common.ui.TopAppBar
+import com.example.movies.movie.detail.domain.model.Genre
 import com.example.movies.movie.detail.domain.model.MovieDetails
 import com.example.movies.theme.AppTheme
 import com.example.movies.util.NetworkImage
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalLifecycleComposeApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MovieDetailsScreen(
     modifier: Modifier = Modifier,
@@ -53,7 +59,9 @@ fun MovieDetailsScreen(
         }
     ) { innerPaddingModifier ->
         MovieDetailsContent(
-            modifier = modifier.padding(innerPaddingModifier),
+            modifier = modifier
+                .padding(innerPaddingModifier)
+                .semantics { testTagsAsResourceId = true },
             movieDetailsUiState = movieDetailsUiState
         )
     }
@@ -154,5 +162,31 @@ private fun MovieDetails(
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
+@Preview(name = "MovieDetailsPreview")
+@Preview(name = "MovieDetailsPreview - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun MovieDetailsPreview() {
+    AppTheme {
+        MovieDetails(
+            movieDetails = MovieDetails(
+                id = 1,
+                title = "Movie title",
+                releaseDate = "2023-01-01",
+                posterUrl = "image.jpg",
+                overview = "An exploratory dive into the deepest depths of the ocean of a daring " +
+                        "research team spirals into chaos when a malevolent mining operation " +
+                        "threatens their mission and forces them into a high-stakes battle for survival.",
+                rating = 7.7,
+                genres = listOf(
+                    Genre(id = 10, name = "Action"),
+                    Genre(id = 10, name = "Drama"),
+                    Genre(id = 10, name = "Adventure")
+                )
+            )
+        )
+    }
+}
+
 
 private const val IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w780"
