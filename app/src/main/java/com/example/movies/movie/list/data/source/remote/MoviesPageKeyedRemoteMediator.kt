@@ -10,11 +10,8 @@ import com.example.movies.api.MoviesApi
 import com.example.movies.movie.list.data.mapper.toMovieEntities
 import com.example.movies.movie.list.data.source.local.entity.MovieEntity
 import com.example.movies.movie.list.data.source.local.entity.RemoteKeyEntity
-import com.example.movies.util.Resource
-import com.example.movies.util.safeApiCall
 import retrofit2.HttpException
 import java.io.IOException
-import java.io.InvalidObjectException
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPagingApi::class)
@@ -45,43 +42,52 @@ class MoviesPageKeyedRemoteMediator(
                     remoteKey?.nextKey?.minus(1) ?: initialPage
                 }
                 LoadType.PREPEND -> {
-                    return MediatorResult.Success(endOfPaginationReached = true)
+                    val remoteKeys = getRemoteKeyForFirstItem(state)
+                    val prevKey = remoteKeys?.prevKey
+                    prevKey ?: return MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
                 }
                 LoadType.APPEND -> {
-                    val remoteKey = getRemoteKeyForLastItem(state) ?: throw InvalidObjectException("empty")
-                    remoteKey.nextKey ?: return MediatorResult.Success(endOfPaginationReached = true)
+                    val remoteKeys = getRemoteKeyForLastItem(state)
+                    val nextKey = remoteKeys?.nextKey
+                    nextKey ?: return MediatorResult.Success(endOfPaginationReached = remoteKeys != null)
                 }
             }
-            when (val resource = safeApiCall { moviesApi.getPopularMovies(page) }) {
-                is Resource.Success -> {
-                    val movies = resource.data.results.toMovieEntities()
-                    val endOfPaginationReached = movies.size < state.config.pageSize
-                    db.withTransaction {
-                        // If refreshing, clear table and start over
-                        if (loadType == LoadType.REFRESH) {
-                            db.remoteKeyDao().clearAll()
-                            db.moviesDao().clearAll()
-                        }
-                        val prevKey = if (page == initialPage) null else page - 1
-                        val nextKey = if (endOfPaginationReached) null else page + 1
-                        val keys = movies.map {
-                            RemoteKeyEntity(
-                                id = it.serverId,
-                                prevKey = prevKey,
-                                nextKey = nextKey
-                            )
-                        }
-                        db.remoteKeyDao().insertAll(keys)
-                        db.moviesDao().insertAll(movies)
-                    }
-                    MediatorResult.Success(endOfPaginationReached)
+            val response = moviesApi.getPopularMovies(page)
+            val movies = response.results.toMovieEntities()
+            val endOfPaginationReached = movies.isEmpty()
+            db.withTransaction {
+                // If refreshing, clear table and start over
+                if (loadType == LoadType.REFRESH) {
+                    db.remoteKeyDao().clearAll()
+                    db.moviesDao().clearAll()
                 }
-                is Resource.Failure -> MediatorResult.Error(Throwable(message = resource.message))
+                val prevKey = if (page == initialPage) null else page - 1
+                val nextKey = if (endOfPaginationReached) null else page + 1
+                val keys = movies.map {
+                    RemoteKeyEntity(
+                        id = it.serverId,
+                        prevKey = prevKey,
+                        nextKey = nextKey
+                    )
+                }
+                db.remoteKeyDao().insertAll(keys)
+                db.moviesDao().insertAll(movies)
             }
+            MediatorResult.Success(endOfPaginationReached)
         } catch (e: IOException) {
             MediatorResult.Error(e)
         } catch (e: HttpException) {
             MediatorResult.Error(e)
+        }
+    }
+
+    private suspend fun getRemoteKeyForFirstItem(
+        state: PagingState<Int, MovieEntity>
+    ): RemoteKeyEntity? {
+        return state.pages.firstOrNull {
+            it.data.isNotEmpty()
+        }?.data?.firstOrNull()?.let { movie ->
+            db.remoteKeyDao().getRemoteKeyById(movie.serverId)
         }
     }
 

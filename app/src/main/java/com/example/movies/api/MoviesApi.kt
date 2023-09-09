@@ -11,7 +11,7 @@ interface MoviesApi {
     @GET("movie/popular")
     suspend fun getPopularMovies(
         @Query("page") page: Int,
-    ): Response<MoviesDto>
+    ): MoviesDto
 
     @GET("movie/{id}")
     suspend fun getMovieDetails(
